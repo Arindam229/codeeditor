@@ -101,7 +101,16 @@ require.config({ paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.52.0
 require(['vs/editor/editor.main'], () => {
   editor = monaco.editor.create(document.getElementById('editor'), {
     value: '', language: 'python', theme: 'vs-dark', automaticLayout: true,
-    minimap: { enabled: false }, fontSize: 14, padding: { top: 12 },
+    minimap: { enabled: false }, fontSize: 14, lineHeight: 22,
+    padding: { top: 14, bottom: 14 }, wordWrap: 'on',
+    lineNumbers: 'on', renderLineHighlight: 'all',
+    scrollBeyondLastLine: false, cursorBlinking: 'smooth',
+    cursorSmoothCaretAnimation: 'on', smoothScrolling: true,
+    tabSize: 4, fontLigatures: true,
+    fontFamily: '"JetBrains Mono", "Fira Code", Consolas, "Courier New", monospace',
+    bracketPairColorization: { enabled: true },
+    guides: { bracketPairs: true, indentation: true },
+    contextmenu: true, selectionHighlight: true,
   });
 });
 

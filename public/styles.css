@@ -57,7 +57,8 @@ pre.wrap, #consolePane pre { white-space: pre-wrap; word-break: break-word; back
 .toolbar select { padding: 7px 10px; border-radius: 8px; background: var(--panel2); color: var(--text); border: 1px solid var(--border); font-weight: 600; }
 #timerDisplay { font-family: ui-monospace, monospace; font-size: 1.1rem; min-width: 58px; text-align: center; color: var(--easy); font-weight: 700; }
 #timerDisplay.warn { color: var(--hard); }
-#editor { height: 46vh; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
+#editor { height: 50vh; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
+.test-case pre { white-space: pre-wrap; word-break: break-word; }
 #consolePane { margin-top: 12px; }
 .console-header { color: var(--muted); font-weight: 700; font-size: .8rem; text-transform: uppercase; margin-bottom: 8px; }
 .console-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
