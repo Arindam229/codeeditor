@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>OA Arena — Crack Online Assessments</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<header>
+  <span class="logo">⚡ OA Arena</span>
+  <nav>
+    <button data-view="browse" class="active">Problems</button>
+    <button data-view="upload">Upload</button>
+  </nav>
+  <span class="spacer"></span>
+</header>
+
+<!-- BROWSE -->
+<main id="view-browse">
+  <div class="filters">
+    <input id="search" placeholder="🔍 Search questions…" />
+    <select id="companyFilter"><option value="">All companies</option></select>
+    <select id="diffFilter"><option value="">Any difficulty</option><option>Easy</option><option>Medium</option><option>Hard</option></select>
+  </div>
+  <div id="companyChips"></div>
+  <table class="problemTable">
+    <thead><tr><th>#</th><th>Title</th><th>Company</th><th>Tags</th><th>Acceptance</th><th>Difficulty</th></tr></thead>
+    <tbody id="questionList"></tbody>
+  </table>
+</main>
+
+<!-- UPLOAD -->
+<main id="view-upload" hidden>
+  <form id="uploadForm">
+    <h2>Upload an OA question</h2>
+    <div class="row">
+      <label>Title <input name="title" required maxlength="200" /></label>
+      <label>Company <input name="company" required maxlength="100" placeholder="Google, Amazon…" /></label>
+    </div>
+    <div class="row">
+      <label>Difficulty
+        <select name="difficulty"><option>Easy</option><option selected>Medium</option><option>Hard</option></select>
+      </label>
+      <label>Year <input name="year" placeholder="2025" /></label>
+      <label>Role <input name="role" placeholder="SDE Intern" /></label>
+    </div>
+    <label>Tags (comma separated) <input name="tags" placeholder="dp, graphs" /></label>
+    <label>Your name <input name="uploadedBy" placeholder="anonymous" /></label>
+    <label>Description <textarea name="description" rows="8" required></textarea></label>
+    <div class="row">
+      <label>Sample input <textarea name="sampleInput" rows="4" required></textarea></label>
+      <label>Expected sample output <textarea name="sampleOutput" rows="4" required></textarea></label>
+    </div>
+    <h3>Starter &amp; driver code (LeetCode-style)</h3>
+    <p class="hint">Starter code is what the solver sees/edits (the function signature). Driver code is hidden — it reads stdin and calls the function. Provide at least Python.</p>
+    <details><summary>Python</summary>
+      <label>Starter code <textarea name="starterPython" rows="6" placeholder="class Solution:&#10;    def solve(self, ...):&#10;        # ..."></textarea></label>
+      <label>Driver code <textarea name="driverPython" rows="6" placeholder="import sys&#10;def main():&#10;    # read stdin, call Solution().solve(...), print answer&#10;main()"></textarea></label>
+    </details>
+    <details><summary>C++</summary>
+      <label>Starter code <textarea name="starterCpp" rows="6"></textarea></label>
+      <label>Driver code (write <code>int main()</code>, <code>#include &lt;bits/stdc++.h&gt;</code> is added automatically) <textarea name="driverCpp" rows="6"></textarea></label>
+    </details>
+    <details><summary>JavaScript</summary>
+      <label>Starter code <textarea name="starterJavascript" rows="6"></textarea></label>
+      <label>Driver code <textarea name="driverJavascript" rows="6"></textarea></label>
+    </details>
+    <button type="submit">Upload question</button>
+    <p id="uploadMsg"></p>
+  </form>
+</main>
+
+<!-- SOLVE -->
+<main id="view-solve" hidden>
+  <button id="backBtn">← Back to Problems</button>
+  <div class="solve-grid">
+    <section id="problemPane">
+      <h2 id="qTitle"></h2>
+      <div id="qMeta"></div>
+      <h3>Description</h3>
+      <pre id="qDesc" class="wrap"></pre>
+      <h3>Input</h3>
+      <p id="qIn"></p>
+      <h3>Output</h3>
+      <p id="qOut"></p>
+    </section>
+
+    <section id="editorPane">
+      <div class="toolbar">
+        <select id="langSelect"></select>
+        <span class="spacer"></span>
+        <select id="timerPreset" title="Timer">
+          <option value="15">⏱ 15 min</option>
+          <option value="30" selected>⏱ 30 min</option>
+          <option value="45">⏱ 45 min</option>
+          <option value="60">⏱ 60 min</option>
+          <option value="0">No limit</option>
+        </select>
+        <button id="timerStart">▶ Start</button>
+        <button id="timerReset">↺</button>
+        <span id="timerDisplay">30:00</span>
+        <button id="runBtn">Run</button>
+        <button id="submitBtn" class="primary">Submit</button>
+      </div>
+      <div id="editor"></div>
+      <div id="consolePane">
+        <div class="console-header">Console</div>
+        <div class="console-grid">
+          <div><h4>Sample Input</h4><pre id="qSampleIn"></pre></div>
+          <div><h4>Your Output</h4><pre id="runOutput">—</pre></div>
+          <div><h4>Expected</h4><pre id="qSampleOut"></pre></div>
+        </div>
+        <div id="verdict"></div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.52.0/min/vs/loader.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

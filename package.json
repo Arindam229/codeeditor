@@ -1,0 +1,13 @@
+{
+  "name": "oa-arena",
+  "version": "1.0.0",
+  "description": "Upload, browse and solve company OA questions with a timer and in-browser code editor.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}
