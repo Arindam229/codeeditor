@@ -38,9 +38,17 @@ docker run -d -p 80:3000 --name oa-arena oa-arena
 > so the same Dockerfile guarantees Python/C++/JS all keep working. Keep it as a
 > private community site — uploaded code is executed on the server.
 
+## Environment variables
+| Variable | Purpose |
+|---|---|
+| `PORT` | Port to listen on (default 3000) |
+| `MONGODB_URI` | If set, questions/attempts/solutions are stored in MongoDB instead of `questions.json` |
+| `OPENROUTER_API_KEY` | Enables the 🤖 AI autofill (image/text → question form) |
+| `OPENROUTER_MODEL` | Vision model for autofill (default `google/gemini-2.0-flash-001`) |
+
 ## How the LeetCode-style harness works
 Each question stores, per language:
 - `starterCode` — shown in the editor (the class/function signature)
 - `driverCode` — hidden; reads stdin, calls your function, prints the result
 
-When you hit Run/Submit, the server concatenates `starter+driver` (adding C++ includes) and runs it. So every question defines its own interface, like LeetCode.
+When you hit Run/Submit, the server concatenates `starter+driver` (adding C++ includes) and runs it. So every question defines its own interface, like LeetCode. **Run** tests the first sample; **Submit** runs all of the question's test cases in parallel (C++ binaries are cached by code hash, so re-submits skip recompilation). Ctrl+S saves your current code per question.

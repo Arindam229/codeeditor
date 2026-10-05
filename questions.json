@@ -5,12 +5,13 @@
       "title": "Count Target Pairs",
       "company": "Amazon",
       "difficulty": "Easy",
-      "tags": ["hashing", "arrays"],
+      "tags": [
+        "hashing",
+        "arrays"
+      ],
       "description": "Given an array of n integers and a target, count the number of pairs (i, j), i < j, such that a[i] + a[j] == target.\n\nExample 1:\nInput: nums = [1,5,7,-1,5], target = 6\nOutput: 3\nExplanation: Pairs (1,5), (7,-1), and the second 5 with 1.\n\nExample 2:\nInput: nums = [1,1,1,1], target = 2\nOutput: 6",
       "inputFormat": "First line: n and target. Second line: n space-separated integers.",
       "outputFormat": "A single integer — the number of valid pairs.",
-      "sampleInput": "5 6\n1 5 7 -1 5",
-      "sampleOutput": "3",
       "year": "2024",
       "role": "SDE Intern",
       "uploadedBy": "arindam",
@@ -24,19 +25,30 @@
         "python": "\nimport sys\ndef main():\n    data = sys.stdin.read().split()\n    n, t = int(data[0]), int(data[1])\n    nums = list(map(int, data[2:2 + n]))\n    print(Solution().countPairs(nums, t))\nmain()\n",
         "cpp": "\nint main() {\n    int n, t; cin >> n >> t;\n    vector<int> a(n);\n    for (auto& x : a) cin >> x;\n    cout << Solution().countPairs(a, t) << endl;\n    return 0;\n}\n",
         "javascript": "\nconst rl = require('readline').createInterface({ input: process.stdin });\nconst lines = [];\nrl.on('line', l => lines.push(l.trim()));\nrl.on('close', () => {\n    const [n, t] = lines[0].split(/\\s+/).map(Number);\n    const nums = lines[1].split(/\\s+/).map(Number).slice(0, n);\n    console.log(countPairs(nums, t));\n});\n"
-      }
+      },
+      "tests": [
+        {
+          "input": "5 6\n1 5 7 -1 5",
+          "output": "3"
+        },
+        {
+          "input": "4 2\n1 1 1 1",
+          "output": "6"
+        }
+      ]
     },
     {
       "id": "seed-2",
       "title": "Longest Subarray with Sum K",
       "company": "Google",
       "difficulty": "Medium",
-      "tags": ["prefix-sum", "hashing"],
+      "tags": [
+        "prefix-sum",
+        "hashing"
+      ],
       "description": "Given an array of integers and an integer K, return the length of the longest contiguous subarray whose sum equals K. Return 0 if none exists.\n\nExample 1:\nInput: nums = [10,5,2,7,1,9], k = 15\nOutput: 4\nExplanation: [5,2,7,1] sums to 15 and has length 4.",
       "inputFormat": "First line: n and k. Second line: n space-separated integers.",
       "outputFormat": "A single integer — the length of the longest such subarray.",
-      "sampleInput": "6 15\n10 5 2 7 1 9",
-      "sampleOutput": "4",
       "year": "2025",
       "role": "SWE",
       "uploadedBy": "arindam",
@@ -50,8 +62,19 @@
         "python": "\nimport sys\ndef main():\n    data = sys.stdin.read().split()\n    n, k = int(data[0]), int(data[1])\n    nums = list(map(int, data[2:2 + n]))\n    print(Solution().longestSubarray(nums, k))\nmain()\n",
         "cpp": "\nint main() {\n    int n, k; cin >> n >> k;\n    vector<int> a(n);\n    for (auto& x : a) cin >> x;\n    cout << Solution().longestSubarray(a, k) << endl;\n    return 0;\n}\n",
         "javascript": "\nconst rl = require('readline').createInterface({ input: process.stdin });\nconst lines = [];\nrl.on('line', l => lines.push(l.trim()));\nrl.on('close', () => {\n    const [n, k] = lines[0].split(/\\s+/).map(Number);\n    const nums = lines[1].split(/\\s+/).map(Number).slice(0, n);\n    console.log(longestSubarray(nums, k));\n});\n"
-      }
+      },
+      "tests": [
+        {
+          "input": "6 15\n10 5 2 7 1 9",
+          "output": "4"
+        },
+        {
+          "input": "3 3\n1 2 3",
+          "output": "2"
+        }
+      ]
     }
   ],
-  "attempts": []
+  "attempts": [],
+  "solutions": []
 }

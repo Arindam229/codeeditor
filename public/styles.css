@@ -38,6 +38,9 @@ textarea { font-family: ui-monospace, monospace; font-size: .85rem; }
 button { padding: 8px 16px; border: 0; border-radius: 8px; background: var(--panel2); color: var(--text); cursor: pointer; font-weight: 600; }
 button:hover { filter: brightness(1.2); }
 button.primary, #uploadForm button[type=submit] { background: var(--accent); color: #111; }
+#aiCard { max-width: 860px; margin: 0 auto 18px; background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; }
+#aiCard h2 { margin: 0; }
+#aiCard input[type=file] { padding: 6px; }
 details { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; }
 summary { cursor: pointer; font-weight: 700; color: var(--muted); }
 .hint { color: var(--muted); font-size: .85rem; margin: 0; }
@@ -62,4 +65,17 @@ pre.wrap, #consolePane pre { white-space: pre-wrap; word-break: break-word; back
 .console-grid pre { margin: 0; min-height: 56px; }
 #verdict { font-weight: 800; margin-top: 10px; font-size: 1.05rem; }
 .pass { color: var(--easy); } .fail { color: var(--hard); }
-@media (max-width: 980px) { .solve-grid { grid-template-columns: 1fr; } .console-grid { grid-template-columns: 1fr; } }
+#verdictBanner { margin: 12px 0; }
+.banner { padding: 14px 18px; border-radius: 10px; font-weight: 800; font-size: 1.05rem; }
+.banner.pass { background: rgba(0,184,163,.15); color: var(--easy); border: 1px solid var(--easy); }
+.banner.fail { background: rgba(239,71,67,.15); color: var(--hard); border: 1px solid var(--hard); }
+.test-case { border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; margin-bottom: 10px; background: var(--panel2); }
+.tc-head { font-weight: 800; margin-bottom: 8px; }
+.test-case.tpass .tc-head { color: var(--easy); }
+.test-case.tfail .tc-head { color: var(--hard); }
+.tc-cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.tc-cols h5 { margin: 0 0 4px; color: var(--muted); font-size: .75rem; text-transform: uppercase; }
+.tc-cols pre { margin: 0; background: var(--panel); padding: 8px; border-radius: 6px; white-space: pre-wrap; font-size: .85rem; }
+.toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(10px); background: #22c55e; color: #052e12; font-weight: 700; padding: 10px 20px; border-radius: 999px; opacity: 0; transition: all .3s; z-index: 50; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+@media (max-width: 980px) { .solve-grid { grid-template-columns: 1fr; } .tc-cols { grid-template-columns: 1fr; } }

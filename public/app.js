@@ -49,6 +49,33 @@ document.getElementById('search').oninput = () => loadQuestions();
 document.getElementById('companyFilter').onchange = () => loadQuestions();
 document.getElementById('diffFilter').onchange = () => loadQuestions();
 
+// ---------- AI autofill ----------
+document.getElementById('aiFill').onclick = async () => {
+  const fileInput = document.getElementById('aiImages');
+  const text = document.getElementById('aiText').value;
+  const status = document.getElementById('aiStatus');
+  if (!fileInput.files.length && !text.trim()) { status.textContent = 'Please upload an image or paste the question text.'; return; }
+  status.textContent = '🤖 Extracting with AI…';
+  const images = await Promise.all([...fileInput.files].map(f => new Promise(res => { const r = new FileReader(); r.onload = () => res(r.result); r.readAsDataURL(f); })));
+  try {
+    const data = await api('/api/ai/extract', { method: 'POST', body: JSON.stringify({ images, text }) });
+    if (data.error) { status.textContent = 'Error: ' + data.error; return; }
+    const f = document.getElementById('uploadForm');
+    const set = (name, val) => { const el = f.elements[name]; if (el) el.value = val ?? ''; };
+    set('title', data.title); set('company', data.company); set('difficulty', data.difficulty || 'Medium');
+    set('tags', (data.tags || []).join(', ')); set('description', data.description);
+    set('inputFormat', data.inputFormat); set('outputFormat', data.outputFormat);
+    if (Array.isArray(data.tests)) {
+      f.elements['testsText'].value = data.tests.map(t => `${(t.input || '').trim()}\n===\n${(t.output || '').trim()}`).join('\n---\n');
+    }
+    set('starterPython', data.starterCode?.python); set('driverPython', data.driverCode?.python);
+    set('starterCpp', data.starterCode?.cpp); set('driverCpp', data.driverCode?.cpp);
+    set('starterJavascript', data.starterCode?.javascript); set('driverJavascript', data.driverCode?.javascript);
+    document.querySelectorAll('#uploadForm details').forEach(d => d.open = true);
+    status.textContent = '✅ Form filled — review and edit, then Upload!';
+  } catch (e) { status.textContent = 'Failed: ' + e.message; }
+};
+
 // ---------- upload ----------
 document.getElementById('uploadForm').onsubmit = async e => {
   e.preventDefault();
@@ -57,6 +84,7 @@ document.getElementById('uploadForm').onsubmit = async e => {
   body.tags = body.tags ? body.tags.split(',').map(t => t.trim()).filter(Boolean) : [];
   body.starterCode = { python: body.starterPython, cpp: body.starterCpp, javascript: body.starterJavascript };
   body.driverCode = { python: body.driverPython, cpp: body.driverCpp, javascript: body.driverJavascript };
+  body.testsText = body.testsText;
   const res = await fetch('/api/questions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
   const data = await res.json();
   document.getElementById('uploadMsg').textContent = res.ok ? `Uploaded! It will show up in Problems.` : `Error: ${data.error}`;
@@ -77,11 +105,16 @@ require(['vs/editor/editor.main'], () => {
   });
 });
 
-document.getElementById('langSelect').onchange = e => {
+document.getElementById('langSelect').onchange = async e => {
   if (editor && currentQ) codeByLang[currentLang] = editor.getValue();
   currentLang = e.target.value;
   monaco.editor.setModelLanguage(editor.getModel(), MONACO_LANG[currentLang]);
-  editor.setValue(codeByLang[currentLang] ?? currentQ.starterCode[currentLang] ?? '');
+  if (currentQ && codeByLang[currentLang] !== undefined) {
+    editor.setValue(codeByLang[currentLang]);
+    return;
+  }
+  const saved = currentQ ? await api(`/api/questions/${currentQ.id}/solution/${currentLang}`).catch(() => ({})) : {};
+  editor.setValue(saved.code || currentQ?.starterCode?.[currentLang] || '');
 };
 
 // ---------- timer ----------
@@ -119,39 +152,71 @@ document.getElementById('timerPreset').onchange = () => document.getElementById(
 renderTimer();
 
 // ---------- run / submit ----------
-async function runCode() {
-  document.getElementById('runOutput').textContent = 'Running…';
+function renderResults(results, mode) {
+  const el = document.getElementById('testResults');
+  if (results.length === 1 && results[0].compileError) {
+    el.innerHTML = `<pre class="wrap" style="color:#ef4743">Compile error:\n${esc(results[0].compileError)}</pre>`;
+    return;
+  }
+  el.innerHTML = results.map((r, i) => `
+    <div class="test-case ${r.passed ? 'tpass' : 'tfail'}">
+      <div class="tc-head">Case ${i + 1}: ${r.passed ? '✓ Passed' : '✗ Failed'} ${r.code !== 0 && r.code !== undefined && r.code !== 'timeout' ? `(exit ${r.code})` : r.code === 'timeout' ? '(TLE)' : ''}</div>
+      <div class="tc-cols">
+        <div><h5>Input</h5><pre>${esc(r.input ?? '')}</pre></div>
+        <div><h5>Your output</h5><pre>${esc(r.got ?? '')}</pre></div>
+        ${r.expected != null ? `<div><h5>Expected</h5><pre>${esc(r.expected)}</pre></div>` : ''}
+      </div>
+      ${r.stderr ? `<pre style="color:#f87171">${esc(r.stderr)}</pre>` : ''}
+    </div>`).join('');
+}
+
+function showBanner(allPassed, passed, total, mode) {
+  const b = document.getElementById('verdictBanner');
+  b.hidden = false;
+  if (allPassed) { b.className = 'banner pass'; b.textContent = mode === 'submit' ? `✅ Accepted — all ${total} test cases passed` : '✅ Sample test passed'; }
+  else { b.className = 'banner fail'; b.textContent = `❌ ${passed}/${total} test cases passed`; }
+}
+
+async function execute(mode) {
+  document.getElementById('testResults').innerHTML = '<p style="color:#9ca3af">Running…</p>';
   try {
     const r = await fetch('/api/run', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ questionId: currentQ.id, language: currentLang, code: editor.getValue(), stdin: currentQ.sampleInput }),
+      body: JSON.stringify({ questionId: currentQ.id, language: currentLang, code: editor.getValue(), stdin: currentQ.tests[0].input, mode }),
     });
-    const run = await r.json();
-    if (run.code !== 0 && run.compileError) {
-      document.getElementById('runOutput').textContent = 'Compile error:\n' + run.compileError;
-      return null;
+    const data = await r.json();
+    if (data.error) { document.getElementById('testResults').innerHTML = `<pre class="wrap">${esc(data.error)}</pre>`; return; }
+    renderResults(data.results, mode);
+    const passed = data.results.filter(r => r.passed).length;
+    showBanner(data.allPassed, passed, data.results.length, mode);
+    if (mode === 'submit') {
+      fetch(`/api/questions/${currentQ.id}/attempts`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ language: currentLang, verdict: data.allPassed ? 'Accepted' : 'Wrong Answer' }) });
     }
-    const out = run.code === 'timeout' ? 'Time limit exceeded' : (run.stdout || '') + (run.stderr ? (run.stdout ? '\n' : '') + run.stderr : '');
-    document.getElementById('runOutput').textContent = out || '(no output)';
-    return run.stdout ?? '';
+    return data;
   } catch (e) {
-    document.getElementById('runOutput').textContent = 'Run failed: ' + e.message;
-    return null;
+    document.getElementById('testResults').innerHTML = `<pre class="wrap">Run failed: ${esc(e.message)}</pre>`;
   }
 }
 
-document.getElementById('runBtn').onclick = () => runCode();
-document.getElementById('submitBtn').onclick = async () => {
-  const out = await runCode();
-  if (out === null) return;
-  const got = out.trim().replace(/\r\n/g, '\n');
-  const expected = (currentQ.sampleOutput || '').trim().replace(/\r\n/g, '\n');
-  const accepted = got === expected;
-  const vEl = document.getElementById('verdict');
-  vEl.textContent = accepted ? '✅ Accepted' : `❌ Wrong Answer — expected "${expected}"`;
-  vEl.className = accepted ? 'pass' : 'fail';
-  fetch(`/api/questions/${currentQ.id}/attempts`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ language: currentLang, verdict: accepted ? 'Accepted' : 'Wrong Answer' }) });
-};
+document.getElementById('runBtn').onclick = () => execute('run');
+document.getElementById('submitBtn').onclick = () => execute('submit');
+
+// Ctrl+S saves current code for this question+language
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+    e.preventDefault();
+    if (!currentQ || !editor) return;
+    fetch(`/api/questions/${currentQ.id}/solution`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ language: currentLang, code: editor.getValue() }) })
+      .then(() => toast('💾 Solution saved'));
+  }
+});
+function toast(msg) {
+  let t = document.createElement('div');
+  t.className = 'toast'; t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.classList.add('show'), 10);
+  setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 1800);
+}
 
 // ---------- open question ----------
 async function openQuestion(id) {
@@ -168,10 +233,8 @@ async function openQuestion(id) {
   document.getElementById('qDesc').textContent = q.description;
   document.getElementById('qIn').textContent = q.inputFormat || '—';
   document.getElementById('qOut').textContent = q.outputFormat || '—';
-  document.getElementById('qSampleIn').textContent = q.sampleInput;
-  document.getElementById('qSampleOut').textContent = q.sampleOutput;
-  document.getElementById('runOutput').textContent = '—';
-  document.getElementById('verdict').textContent = '';
+  document.getElementById('testResults').innerHTML = '';
+  document.getElementById('verdictBanner').hidden = true;
 
   availableLangs = ['python', 'cpp', 'javascript'].filter(l => q.starterCode && q.starterCode[l] && q.driverCode && q.driverCode[l]);
   const sel = document.getElementById('langSelect');
@@ -181,10 +244,11 @@ async function openQuestion(id) {
   show('solve');
   document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
   // set editor after solve view is visible
-  setTimeout(() => {
+  setTimeout(async () => {
     if (editor && currentQ) {
       monaco.editor.setModelLanguage(editor.getModel(), MONACO_LANG[currentLang]);
-      editor.setValue(currentQ.starterCode[currentLang] ?? '');
+      const saved = await api(`/api/questions/${currentQ.id}/solution/${currentLang}`).catch(() => ({}));
+      editor.setValue(saved.code || currentQ.starterCode[currentLang] || '');
       editor.updateOptions({ readOnly: false });
     }
   }, 50);
