@@ -89,7 +89,7 @@ function assemble(language, code, question) {
   const driver = question?.driverCode?.[language];
   if (question && !driver) throw new Error(`Language "${language}" is not configured for this question`);
   if (!question) return code;
-  if (language === 'cpp') return `#include <bits/stdc++.h>\nusing namespace std;\n\n` + code + driver;
+  if (language === 'cpp') return `#include <bits/stdc++.h>\n\n` + code + driver;
   return code + driver;
 }
 
@@ -270,7 +270,7 @@ Extract the question and respond with STRICT JSON only (no markdown, no code fen
   "inputFormat": string,
   "outputFormat": string,
   "tests": [{"input": string, "output": string}] (at least 2 test cases; derive expected outputs by reading the statement carefully),
-  "starterCode": {"python": string, "cpp": string, "javascript": string} (LeetCode-style function/class signature for the problem; empty string if you cannot infer one),
+  "starterCode": {"python": string, "cpp": string, "javascript": string} (LeetCode-style; for cpp use: using namespace std; and a 'class Solution { public: ... };' signature; empty string if you cannot infer one),
   "driverCode": {"python": string, "cpp": string, "javascript": string} (hidden driver that reads stdin, calls the solution function, and prints the answer; must match the starter code's signature; for cpp do NOT include #include lines, they are added automatically)
 }`;
 

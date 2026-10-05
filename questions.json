@@ -18,7 +18,7 @@
       "createdAt": "2026-10-05T00:00:00.000Z",
       "starterCode": {
         "python": "class Solution:\n    def countPairs(self, nums: list[int], target: int) -> int:\n        # write your code here\n        pass\n",
-        "cpp": "class Solution {\npublic:\n    int countPairs(vector<int>& nums, int target) {\n        // write your code here\n        return 0;\n    }\n};\n",
+        "cpp": "using namespace std;\n\nclass Solution {\npublic:\n    int countPairs(vector<int>& nums, int target) {\n        // write your code here\n        return 0;\n    }\n};\n",
         "javascript": "/**\n * @param {number[]} nums\n * @param {number} target\n * @return {number}\n */\nfunction countPairs(nums, target) {\n    // write your code here\n}\n"
       },
       "driverCode": {
@@ -55,7 +55,7 @@
       "createdAt": "2026-10-05T00:01:00.000Z",
       "starterCode": {
         "python": "class Solution:\n    def longestSubarray(self, nums: list[int], k: int) -> int:\n        # write your code here\n        pass\n",
-        "cpp": "class Solution {\npublic:\n    int longestSubarray(vector<int>& nums, int k) {\n        // write your code here\n        return 0;\n    }\n};\n",
+        "cpp": "using namespace std;\n\nclass Solution {\npublic:\n    int longestSubarray(vector<int>& nums, int k) {\n        // write your code here\n        return 0;\n    }\n};\n",
         "javascript": "/**\n * @param {number[]} nums\n * @param {number} k\n * @return {number}\n */\nfunction longestSubarray(nums, k) {\n    // write your code here\n}\n"
       },
       "driverCode": {
