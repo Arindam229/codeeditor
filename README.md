@@ -44,7 +44,7 @@ docker run -d -p 80:3000 --name oa-arena oa-arena
 | `PORT` | Port to listen on (default 3000) |
 | `MONGODB_URI` | If set, questions/attempts/solutions are stored in MongoDB instead of `questions.json` |
 | `OPENROUTER_API_KEY` | Enables the 🤖 AI autofill (image/text → question form) |
-| `OPENROUTER_MODEL` | Vision model for autofill (default `google/gemini-2.0-flash-001`) |
+| `OPENROUTER_MODEL` | Vision model for autofill (default `google/gemini-3.8-flash`) |
 
 ## How the LeetCode-style harness works
 Each question stores, per language:

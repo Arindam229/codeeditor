@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const fs = require('fs');
 const os = require('os');
@@ -256,7 +257,7 @@ app.post('/api/questions/:id/solution', async (req, res) => {
 
 // ---------- AI: extract question from image ----------
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || '';
-const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL || 'google/gemini-2.0-flash-001';
+const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL || 'qwen/qwen3.8-27b:free';
 
 const AI_PROMPT = `You are helping build a coding practice site. The attached image is a screenshot of an online assessment (OA) coding question from a company.
 Extract the question and respond with STRICT JSON only (no markdown, no code fences) with these exact fields:
@@ -288,7 +289,7 @@ app.post('/api/ai/extract', async (req, res) => {
     const r = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${OPENROUTER_API_KEY}`, 'Content-Type': 'application/json', 'HTTP-Referer': 'http://localhost:3000' },
-      body: JSON.stringify({ model: OPENROUTER_MODEL, messages: [{ role: 'user', content }], response_format: { type: 'json_object' } }),
+      body: JSON.stringify({ model: OPENROUTER_MODEL, messages: [{ role: 'user', content }] }),
     });
     const data = await r.json();
     if (!r.ok) return res.status(502).json({ error: data?.error?.message || 'OpenRouter error' });
